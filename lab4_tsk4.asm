@@ -30,7 +30,6 @@ SORTOUT
 
     ADD R2, R1, #0; dig 1 adr
     ADD R3, R1, #1; dig 2 adr
-    ADD R4, R4, #0; cntr
 
 SORTIN
 
@@ -57,7 +56,7 @@ SKIP
     BRp SORTIN
 
 SWAP
-    ADD R7, R7, #-1
+    ADD R7, R7, #-1; marker
 
     ADD R6, R6, #-1; positive again
     NOT R6, R6
