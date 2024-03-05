@@ -1,98 +1,143 @@
 .ORIG x3000
 
-LEA R0, HS
+LEA R1, ARR; filling in ARR with zero el-s:
+LD R2, ZERO
+ADD R3, R3, #10
+
+FILLING_ARR
+    
+    STR R2, R1, #0
+    ADD R1, R1, #1
+    ADD R3, R3, #-1
+    BRp FILLING_ARR
+
+LEA R0, HS; start: 
 PUTS
+AND R0, R0, #0
 
-LEA R1, STRING
+PREPARE; loading R-s
+    
+    LEA R7, ARR
+    LEA R6, STOR
+    LEA R5, MLTPS
 
-INP
-    GETC
-    OUT
+    
 
-    LD R2, LINE; check end
-    ADD R2, R2, R0
-    BRz SORTOUT
+    AND R0, R0, #0
+    
+MULT; multiplying every base of the number 
+    
 
-    LD R2, ZERO; refrac from ascii
-    ADD R0, R0, R2 
-    STR R0, R1, #0
-    ADD R1, R1, #1
-    BRnzp INP
+    LDR R1, R6, #0; digit (cntr)
+    LDR R2, R5, #0; multiplyer
+    ADD R4, R2, R2; res
+    ADD R1, R1, #-1; decr digit (cntr)
+    BRnp MULT 
 
-SORTOUT
-    LEA R1, STRING
-    LD R0, NCNTR; outter cntr
-    ADD R0, R7, R0; check swap count
-    BRz LOAD
+REMULT; shift next digit base in STOR 
 
-    LD R7, CNTR; zeroing swap cntr
-    LD R4, CNTR; zeroing inner cntr
-
-    ADD R2, R1, #0; dig 1 adr
-    ADD R3, R1, #1; dig 2 adr
-    ADD R4, R4, #0; cntr
-
-SORTIN
-
-    LDR R5, R2, #0; dig 1
-    LDR R6, R3, #0; dig 2
-
-    NOT R6, R6; negative digit
     ADD R6, R6, #1
+    ADD R5, R5, #1
 
-    ADD R0, R5, R6; compare
-    BRnz SKIP
-    BRp SWAP
+    PUTS
 
+    LDR R1, R6, #0; spc check
+    LD R2, SPC
+    ADD R1, R1, R2
 
-SKIP
-    ADD R6, R6, #-1; positive again
-    NOT R6, R6
+    BRz FILL
+    BRnp MULT
 
-    ADD R2, R2, #1; move adr
-    ADD R3, R3, #1 
+FILL; fill in array with number
 
-    ADD R4, R4, #-1; decr cntr
-    BRz SORTOUT
-    BRp SORTIN
+    ADD R6, R6, #1; spc shift
+    LEA R5, MLTPS
 
-SWAP
-    ADD R7, R7, #-1
+    STR R4, R7, #0; store result 
+    AND R4, R4, #0; clear
+    ADD R7, R7, #1    
 
-    ADD R6, R6, #-1; positive again
-    NOT R6, R6
+    ADD R0, R0, #1; incr num cntr
+    LD R1, ARRCNTR
+    ADD R2, R0, R1
 
-    STR R6, R2, #0; swap
-    STR R5, R3, #0
+    BRnp MULT
+    BRz PREP
 
-    BRnzp SORTIN
+PREP; prepare for division the number on its bases
 
-LOAD
-    LEA R1, STRING
-    LD R2, PZERO
-    LD R3, NCNTR
+    LEA R7, ARR
+    LEA R6, NMLTPS
+    AND R0, R0, #0
 
-SHOW
-    LDR R0, R1, #0
-    ADD R0, R0, R2
-    ADD R1, R1, #1
+DIV; division by digit base
+
+    AND R4, R4, #0; clear compare
+
+    LDR R1, R7, #0; num
+    LDR R2, R6, #0; -
+
+    ADD R4, R1, R2; compare
+    BRnz PRESHOW
+
+    ADD R1, R1, R2; num
+    STR R1, R7, #0
+    ADD R0, R0, #1; qnty of digits
+
+    BRnzp DIV
+
+PRESHOW
+
+    LD R1, AZERO
+    ADD R0, R0, R1
     OUT
-    ADD R3, R3, #1
-    BRp STOP
-    BRnzp SHOW  
+
+    ADD R7, R7, #1; shifts
+    ADD R6, R6, #1
+    AND R0, R0, #0
+    
+    AND R4, R4, #0; for basese compare
+    ADD R4, R4, #-4
+    ADD R5, R5, #1; cntr for digit bases
+    ADD R4, R4, R5
+    BRz STOP     
+    BRnp DIV
 
 STOP
+
     HALT
 
-HS .STRINGZ "Pls, input a 10-digit string in random order without any separators: "
-HUS .STRINGZ  "Huy"
+HS .STRINGZ "Pls, input ten 4-digit numbers: "; start
+HS1 .STRINGZ  "Entered"
 
-STRING .BLKW #100
-CNTR .FILL #9
-NCNTR .FILL #-9
+ZERO .FILL #0; filling arr with zero el-s
+ARRCNTR .FILL #-2; ЗАМЕНИ #-10?
 
-LINE .FILL  #-10; new line
-ZERO .FILL #-48; -0
-PZERO .FILL #48; +0
+AZERO .FILL #48
+NAZERO .FILL #-48
+ENDLINE .FILL #-10
+SPC .FILL #16
+
+ARR .BLKW #2; ЗАМЕНИ #10?
+
+STOR .FILL #2
+.FILL #3
+.FILL #4
+.FILL #3
+.FILL #-16
+.FILL #5
+.FILL #1
+.FILL #3
+.FILL #2
+
+MLTPS .FILL #1000
+.FILL #100
+.FILL #10
+.FILL #1
+
+NMLTPS .FILL #-1000
+.FILL #-100
+.FILL #-10
+.FILL #-1
 
 .END
